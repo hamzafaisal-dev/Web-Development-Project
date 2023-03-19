@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
-import User from '../models/userModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
+import models from '../models/userModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
+const { User } = models;
 import { validateEmail } from '../helpers/authHelpers.js';
 
 export async function hello(req, res, next) {
@@ -10,16 +11,29 @@ export async function hello(req, res, next) {
 export async function userSignUp(req, res, next) {
     try {
 
-        // check for duplicate entry, return error message if true
-        const existingUser = await User.findOne({ email: req.body.email });
+        // check for duplicate email, return error message if true
+        const userAlreadyExists = await User.findOne({ email: req.body.email });
 
-        if (existingUser) {
+        if (userAlreadyExists) {
             return res.status(400).json({ message: 'This email is already in use' });
         }
 
+        // check if email format is valid
+        const isValidEmail = await validateEmail(req.body.email);
+
+        if (!isValidEmail) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        // check if password length is valid
+        if (req.body.password.length < 6) {
+            return res.status(400).json({ message: 'Please enter a password with at least 6 characters' });
+        }
+
+        // hash password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-        //creates a new user document in the MongoDB database using the data in the request body. The req.body property contains the request payload. Hashes password first then stores it
+        //creates a new user document in db using data in request body. Hashes password first then stores it
         const user = await User.create({
             email: req.body.email,
             password: hashedPassword
@@ -46,6 +60,15 @@ export async function getAllUsers(req, res, next) {
 export async function userLogin(req, res, next) {
     try {
         //const userID = req.params.id;
+
+        // check if email format is valid
+        const isValidEmail = await validateEmail(req.body.email);
+
+        if (!isValidEmail) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        // check if email exists and password matches
         const user = await User.findOne({ email: req.body.email });
         const isMatch = await bcrypt.compare(req.body.password, user.password);
 
