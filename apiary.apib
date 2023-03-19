@@ -1,0 +1,1081 @@
+FORMAT: 1A
+HOST: https://polls.apiblueprint.org/
+
+# PlayWithBalls API
+
+PlayWithBalls is an API for a web application that allows football players to view and book football grounds.
+
+## Register [/signup]
+
+### Sign Up [POST]
+
++ Request (application/json)
+
+        {
+            "first-name": "Hamza",
+            "last-name": "Faisal",
+            "phone": "1234567890",
+            "email": "dummymail@gmail.com",
+            "profile-picture": "https://example.com/profile-pic.jpg",
+            "password": "mypassword123"
+        }
+        
++ Response 200 (application/json)
+
+        {
+            message: "Profile creation successful"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Profile creation unsuccessful"
+        }
+        
+## Login [/login]
+
+### Login [GET]
+
++ Request (application/json)
+
+        {
+            "email": "dummyemail@gmail.com",
+            "password": "mypassword123"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+            Token:<Bearer> Token
+
+    + Body
+
+            {
+                    "message": "Login successful",
+                    "token": "eyJhbGciO.W15ZW1h4fwpMeJf36POk6yJV_a.dQssw5c"
+            }
+            
+## Forgot Password [/password]
+
+### Password Reset [POST]
+
++ Request (application/json)
+
+        {
+            "email": "dummyemail@gmail.com"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+    + Body
+
+            {
+                    "message": "Password reset instructions sent to email"
+            }
+            
++ Response 500 (application/json)
+
+    + Headers
+
+    + Body
+
+            {
+                    "message": "An error occurred while processing your request. Please try again later."
+            }
+            
+## User Collection [/users/{user_id}]
+
+### Update User [PUT]
+
+
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+            
+    + Body
+    
+            {
+                // these fields signify the details that user wants to change
+                "first_name": "John",
+                "last_name": "Doe",
+                "email": "johndoe@gmail.com",
+                "phone_number": "1234567890"
+            }
+        
++ Response 201 (application/json)
+
+    + Body
+
+        {
+          "status": "success",
+          "message": "User details updated successfully",
+          "data": {
+            "id": "_fdgegsfsfoce834nl9",
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "johndoe@gmail.com",
+            "phone_number": "1234567890",
+            "created_at": "2022-03-08T10:00:00Z",
+            "updated_at": "2022-03-08T12:00:00Z"
+          }
+        }
+        
++ Response 400 (application/json)
+
+    + Body
+
+        {
+          "status": "error",
+          "message": "Invalid request data",
+          "data": {
+            "email": ["Enter a valid email address"],
+            "phone_number": ["Ensure this value has at least 10 characters."]
+          }
+        }
+        
++ Response 401 (application/json)
+
+
+        {
+          "status": "error",
+          "message": "Authentication failed"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "status": "error",
+          "message": "User not found"
+        }
+
+### Delete Account [DELETE]
+
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+            {
+                "name": "John Doe"
+            }
+        
++ Response 200 (application/json)
+
+    + Body
+
+        {
+          "status": "success",
+          "message": "User account deleted successfully"
+        }
+
++ Response 401 (application/json)
+
+    + Body
+
+        {
+          "status": "error",
+          "message": "Authentication failed"
+        }
+
++ Response 404 (application/json)
+
+    + Body
+
+        {
+          "status": "error",
+          "message": "User not found"
+        }
+ 
+## Cities [/cities]
+Normal users can only view cities
+### View Cities [GET] 
+
++ Request (application/json)
+
+       + Headers
+            Authorization: Bearer <access_token>
+        
++ Response 200 (application/json)
+
+    + Body
+
+        [
+            {
+            "id": 123,
+            "city": "Karachi"
+            },
+            {
+            "id": 456,
+            "city": "Islamabad"
+            },
+            {
+            "id": 789,
+            "city": "Lahore"
+            }
+        ]
+        
++ Response 500
+
+        {
+          "status": "error",
+          "message": "Internal Server Error"
+        }
+        
+### Add city [POST] 
+
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+            
+    + Parameters
+            Query Param: id
+            
+        {
+            "id": "_lds53mnfjld8345n"
+        }
+        
++ Response 200 (application/json)
+
+    + Body
+
+        {
+            "id": 123,
+            "name": "Karachi"
+        }
+        
++ Response 401
+
+        {
+          "status": "error",
+          "message": "Authentication failed"
+        }
+
++ Response 404
+
+        {
+          "status": "error",
+          "message": "City not found"
+        }
+ 
+        
+## Areas [/areas]
+Normal users can only view areas
+### View areas [GET] 
+
++ Request (application/json)
+
+       + Headers
+            Authorization: Bearer <access_token>
+        
++ Response 200 (application/json)
+
+    + Body
+
+        [
+            {
+            "id": 123,
+            "name": "Gulshan-e-Iqbal",
+            "city": "Karachi"
+            },
+            {
+            "id": 456,
+            "name": "North Nazimabad",
+            "city": "Karachi"
+            },
+            {
+            "id": 789,
+            "name": "Defence",
+            "city": "Karachi"
+            }
+        ]
+        
++ Response 500
+
+        {
+          "status": "error",
+          "message": "Internal Server Error"
+        }
+        
+### Add area [POST] 
+
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+            
+    + Parameters
+            Query Param: id
+            
+        {
+            "id": "_lds53mnfjld8345n"
+        }
+        
++ Response 200 (application/json)
+
+    + Body
+
+        {
+            "id": 123,
+            "name": "Karachi"
+        }
+        
++ Response 401
+
+        {
+          "status": "error",
+          "message": "Authentication failed"
+        }
+
++ Response 404
+
+        {
+          "status": "error",
+          "message": "City not found"
+        }
+        
+## Grounds [/grounds]
+Ground ID will be generated automatically when creating ground
+### Add Ground [POST]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "name": "Madhu Ground",
+            "address": "B-2 Main University Rd, Gulshan-e-Iqbal",
+            "type": "turf",
+            "inchargeID": "_4bsbfgjd8dfj3knsd",
+            "areaID": "123",
+            "images": [
+                        {
+                            "image": "https://groundimage1.jpg"
+                        },
+                        {
+                            "image": "https://groundimage2.jpg"
+                        }
+                     ]
+        }
+        
++ Response 201 (application/json)
+
+        {
+            message: "Ground creation successful"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Ground creation unsuccessful"
+        }
+        
+Normal users can only view grounds
+Normal users can only view grounds
+Normal users can only view grounds
+### View Ground [GET]
++ Request (application/json)
+
+    + Body
+        
+        {
+            "groundID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "name": "Madhu Ground",
+            "address": "B-2 Main University Rd, Gulshan-e-Iqbal",
+            "type": "turf",
+            "inchargeID": "_4bsbfgjd8dfj3knsd",
+            "areaID": "123",
+            "images": [
+                        {
+                            "image": "https://groundimage1.jpg"
+                        },
+                        {
+                            "image": "https://groundimage2.jpg"
+                        }
+                     ]
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Ground not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### View Grounds [GET]
++ Request (application/json)
+
+        
++ Response 201 (application/json)
+
+        {
+            "name": "Madhu Ground",
+            "address": "B-2 Main University Rd, Gulshan-e-Iqbal",
+            "type": "turf",
+            "inchargeID": "_4bsbfgjd8dfj3knsd",
+            "areaID": "123",
+            "images": [
+                        {
+                            "image": "https://groundimage1.jpg"
+                        },
+                        {
+                            "image": "https://groundimage2.jpg"
+                        }
+                     ]
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }    
+        
+### Update Ground [PUT]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "groundID": "_92435bjwsdnf80nqwekb",
+            "name": "Madhu Football Ground"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Details updated succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Ground not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### Delete Ground [DELETE]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "groundID": "_92435bjwsdnf80nqwekb"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Ground deleted succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Ground not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+## Bookings [/bookings]
+Booking ID will be generated automatically when creating booking
+### Add Booking [POST]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "groundID": "_92435bjwsdnf80nqwekb",
+            "userID": "_dfepwenfifvm83nv0dt",
+            "timeslotID": "1234",
+            "bookingDate": "09-05-2023"
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "message": "Booking successful"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            "message": "Booking unsuccessful"
+        }
+### View Booking [POST]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+        {   
+            "bookingID": "_wdnfewfui38fn20c"
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "bookingStatus": "success/error",
+            "groundID": "_92435bjwsdnf80nqwekb",
+            "userID": "_dfepwenfifvm83nv0dt",
+            "timeslotID": "1234",
+            "paymentID": "_kwejfnwe8k0nfadsjfn3",
+            "bookingDate": "09-05-2023"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            "message": "Booking not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            "message": "Internal Server Error"
+        }
+
+## Teams [/teams]
+Team ID will be generated automatically when creating team
+### Add Team [POST]
++ Request (application/json)
+
+    + Body
+    
+        {
+            "name": "FK Krieger",
+            "description": "Warriors until the end!",
+            "profileImage": "https://teamLogo.jpg",
+            "coverImage": "https://teamCover.jpg",
+            "contactNumber": "92383929292",
+            "email": "fk.krieger@hotmail.com",
+            "facebookHandle": "https://facebook.com/fkkrieger",
+            "instaHandle": "https://instagram.com/fkkrieger",
+            "players": [
+                {
+                    "userID": "_51435bjwsdnf80nqhbsd"
+                },
+                {
+                    "userID": "_92435bjwsdnf80nqwekb"
+                }
+            ],
+        }
+        
++ Response 201 (application/json)
+
+        {
+            message: "Team creation successful"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Team creation unsuccessful"
+        }
+
+### Add To Team [POST]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+        {
+            "userID": "_51435bjwsdnf80nqhbsd"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "userName": "Abc",
+            "userProfilePic": "https://profilepic",
+            "userPosition": "Left Wing"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Player addition to team unsuccessful"
+        }
+
+### Delete From Team [DELETE]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+        {
+            "userID": "_52435bjwsdnf80nqwekb",
+            "teamID": "_92435bjwsdnf80nqwekb"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Team deleted succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Team not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+
+        
+
+Any user can view team
+### View Team [GET]
++ Request (application/json)
+
+    + Body
+        
+        {
+            "teamID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "name": "FK Krieger",
+            "description": "Warriors until the end!",
+            "profileImage": "https://teamLogo.jpg",
+            "coverImage": "https://teamCover.jpg",
+            "contactNumber": "92383929292",
+            "email": "fk.krieger@hotmail.com",
+            "facebookHandle": "https://facebook.com/fkkrieger",
+            "instaHandle": "https://instagram.com/fkkrieger",
+            "players": [
+                {
+                    "userID": "_51435bjwsdnf80nqhbsd"
+                },
+                {
+                    "userID": "_92435bjwsdnf80nqwekb"
+                }
+            ],
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Team not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### View Teams [GET]
++ Request (application/json)
+
+        
++ Response 201 (application/json)
+
+        {
+            [
+                {
+                    "name": "FK Krieger",
+                    "description": "Warriors until the end!",
+                    "profileImage": "https://teamLogo.jpg",
+                    "coverImage": "https://teamCover.jpg",
+                    "contactNumber": "92383929292",
+                    "email": "fk.krieger@hotmail.com",
+                    "facebookHandle": "https://facebook.com/fkkrieger",
+                    "instaHandle": "https://instagram.com/fkkrieger",
+                    "players": [
+                        {
+                            "userID": "_51435bjwsdnf80nqhbsd"
+                        },
+                        {
+                            "userID": "_92435bjwsdnf80nqwekb"
+                        }
+                    ],
+                },
+                {
+                    "name": "B8 FC",
+                    "description": "We are based in Karachi since 2008...",
+                    "profileImage": "https://teamLogo.jpg",
+                    "coverImage": "https://teamCover.jpg",
+                    "contactNumber": "92383929292",
+                    "email": "b8@hotmail.com",
+                    "facebookHandle": "https://facebook.com/b8",
+                    "instaHandle": "https://instagram.com/b8",
+                    "players": [
+                        {
+                            "userID": "_56385bjwsdnf80nqhbsd"
+                        },
+                        {
+                            "userID": "_12435bjwsdnf80nqwekb"
+                        }
+                    ],
+                },
+            ],
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }    
+        
+### Update Team [PUT]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+        {
+            "teamID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Details updated succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Team not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### Delete Team [DELETE]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+        
+        {
+            "teamID": "_92435bjwsdnf80nqwekb"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Team deleted succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Team not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+        
+## Payment [/payment]
+Payment ID will be generated automatically when creating payment
+### Add Payment [POST]
++ Request (application/json)
+    
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "userID": "_51435bjwsdnf80nqhbsd",
+            "groundID": "_92435bjwsdnf80nqwekb",
+            "bookingID": "_42235bjwsdnf80nqwekb",
+            "paymentStatus": "awaiting",
+            "paymentAmount": "0.10 * totalAmount",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            message: "Payment tab created successfully"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Payment tab creation unsuccessful"
+        }
+        
+
+Only user with id can view payment tab
+### View Payment [GET]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "userID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "userName": "Abc",
+            "groundName": "Madhu",
+            "bookedSlots": [
+                {
+                    "startTime": "10:00",
+                    "endTime": "12:00",
+                    "rate": "2000"
+                }
+            ],
+            "paymentStatus": "confirmed",
+            "paymentAmount": "200",
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "No payment form available"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+### Update Payment [PUT]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+    
+        {
+            "paymentID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Details updated succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Payment form not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### Delete Payment [DELETE]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "paymentID": "_92435bjwsdnf80nqwekb"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Payment form deleted succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Payment form not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+## Review [/review]
+Review ID will be generated automatically when creating review
+### Add Review [POST]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "userID": "_51435bjwsdnf80nqhbsd",
+            "groundID": "_92435bjwsdnf80nqwekb",
+            "rating" : "2.5",
+            "review" : "This ground is very uneven."
+        }
+        
++ Response 201 (application/json)
+
+        {
+            message: "Review creation successful"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Review creation unsuccessful"
+        }
+        
+
+Any user can view reviews
+### View Reviews [GET]
++ Request (application/json)
+
+        {
+            "groundID": "_92435bjwsdnf80nqwekb",
+        }
+        
++ Response 201 (application/json)
+
+        [
+            {
+            "userName": "Abc",
+            "userProfilePic": "https://djbkd",
+            "rating" : "2.5",
+            "review" : "This ground is very uneven."
+            },
+            {
+            "userName": "Efgc",
+            "userProfilePic": "https://djbkd",
+            "rating" : "4",
+            "review" : "Very nice lighting."
+            },
+        ]
+        
++ Response 404 (application/json)
+
+        {
+            message: "No Reviews found for following ground"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+
+### Update Review [PUT]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "reviewID": "_92435bjwsdnf80nqwekb",
+            
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Details updated succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Review not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
+### Delete Review [DELETE]
++ Request (application/json)
+
+    + Headers
+            Authorization: Bearer <access_token>
+
+    + Body
+
+        {
+            "reviewID": "_92435bjwsdnf80nqwekb"
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "message": "Review deleted succesfully"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            message: "Review not found"
+        }
+        
++ Response 500 (application/json)
+
+        {
+            message: "Internal Server Error"
+        }
