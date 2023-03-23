@@ -1,4 +1,4 @@
-import models from '../models/userModels.js'
+import models from '../models/allModels.js'
 const { City, Area } = models;
 
 export async function addArea(req, res, next) {

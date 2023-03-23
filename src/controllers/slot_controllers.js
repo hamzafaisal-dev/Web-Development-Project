@@ -1,4 +1,4 @@
-import models from '../models/userModels.js'
+import models from '../models/allModels.js'
 const { City, Area, Ground, Slot } = models;
 
 // /cities/:cityID/areas/:areaID/grounds/:groundID/slots

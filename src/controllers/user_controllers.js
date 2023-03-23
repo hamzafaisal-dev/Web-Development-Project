@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
-import models from '../models/userModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
+import models from '../models/allModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
 const { User } = models;
 import { validateEmail } from '../helpers/authHelpers.js';
 
-export async function hello(req, res, next) {
-    res.send('Hello user');
+export async function home(req, res, next) {
+    res.send('Ground Booking App: Home');
 }
 
 export async function userSignUp(req, res, next) {

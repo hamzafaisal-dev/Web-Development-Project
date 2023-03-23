@@ -133,6 +133,41 @@ const slotSchema = mongoose.Schema(
     }
 );
 
+const bookingSchema = mongoose.Schema(
+    {
+        bookingStatus: {
+            type: String,
+            enum: ['Pending', 'Confirmed', 'Denied'],
+            required: true
+        },
+        bookingDate: {
+            type: Date,
+            required: true
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        ground: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Ground'
+        },
+        slots: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Slot'
+            }
+        ],
+        totalAmount: {
+            type: Number,
+            required: true
+        }
+    },
+    {
+        timestamps: true
+    }
+);
+
 const userSchema = mongoose.Schema(
     {
         firstName: {
@@ -178,5 +213,6 @@ const City = mongoose.model('City', citySchema);
 const Area = mongoose.model('Area', areaSchema);
 const Ground = mongoose.model('Ground', groundSchema);
 const Slot = mongoose.model('Slot', slotSchema);
+const Booking = mongoose.model('Booking', bookingSchema);
 
-export default { User, City, Area, Ground, Slot };
+export default { User, City, Area, Ground, Slot, Booking };

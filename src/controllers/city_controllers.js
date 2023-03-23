@@ -1,5 +1,5 @@
 //import { MongooseError } from 'mongoose';
-import models from '../models/userModels.js'
+import models from '../models/allModels.js'
 const { City } = models;
 
 export async function addCity(req, res, next) {
