@@ -9,9 +9,10 @@ import { cityRouter } from './src/routes/cityRoutes.js'
 import { areaRouter } from './src/routes/areaRoutes.js'
 import { groundRouter } from './src/routes/groundRoutes.js'
 import { slotRouter } from './src/routes/slotRoutes.js'
-import { userRouter } from './src/routes/userRoutes.js';
+import { userRouter } from './src/routes/userRoutes.js'
+//import { reviewRouter } from './src/routes/reviewRoutes.js'
 
-// sets up the Express application to handle incoming data in JSON format.
+// sets up the Express application to handle incoming data in JSON format
 app.use(express.json());
 
 // users router
@@ -33,8 +34,6 @@ app.use('/', slotRouter);
 
 // CREATE new booking for a particular ground
 // app.post('/users/:userID/bookings', addSlot);
-
-//---------------------------------------------------------
 
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.DB_CONNECTION_STRING)

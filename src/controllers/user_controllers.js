@@ -34,26 +34,30 @@ export async function userSignUp(req, res, next) {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         //creates a new user document in db using data in request body. Hashes password first then stores it
-        const user = await User.create({
+        const newUser = await User.create({
             email: req.body.email,
-            password: hashedPassword
+            password: hashedPassword,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            phone: req.body.phone,
+            age: req.body.age,
+            gender: req.body.gender,
+            role: req.body.role,
+            profileImage: req.body.profileImage
         });
 
-        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '24h' });
+        const token = jwt.sign({ newUser }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '300s' });
 
-        res.status(200).json({ user, token });
+        res.status(200).json({ newUser, token });
 
     } catch (error) {
+        console.log(error);
+
+        if (error instanceof Error && error.code == "11000") {
+            return res.status(400).json({ message: 'This phone number is already registered' })
+        }
+
         res.status(500).json({ message: 'Unable to create your account' })
-    }
-}
-
-export async function getAllUsers(req, res, next) {
-    try {
-        const users = await User.find({}); // User.find({}) retrieves all users from database
-        res.status(200).json(users) // returns list of users as a JSON object
-    } catch (error) {
-        res.status(500).json({ message: 'Unable to get users' })
     }
 }
 
@@ -77,12 +81,21 @@ export async function userLogin(req, res, next) {
             return res.status(400).json({ message: 'Incorrect email or password' });
         }
 
-        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '24h' });
+        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '300s' });
 
         res.status(200).json({ user, token });
 
     } catch (error) {
-        res.status(500).json({ message: 'Unable to find user' })
+        res.status(500).json({ message: 'Something went wrong' })
+    }
+}
+
+export async function getAllUsers(req, res, next) {
+    try {
+        const users = await User.find({}); // User.find({}) retrieves all users from database
+        res.status(200).json(users) // returns list of users as a JSON object
+    } catch (error) {
+        res.status(500).json({ message: 'Unable to get users' })
     }
 }
 

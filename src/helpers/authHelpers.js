@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+dotenv.config() // load environment variables from .env file
 
 export async function validateEmail(email) {
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -14,25 +16,23 @@ export async function verifyToken(req, res, next) {
         const bearer = bearerHeader.split(" ");
         const bearerToken = bearer[1];
         req.token = bearerToken;
-        next();
+
+        jwt.verify(req.token, `${process.env.JWT_SECRET_KEY}`, function (err, data) {
+            if (err) {
+                console.log('Invalid token. Line 22');
+                // res.status(403).json({ message: 'Invalid token' });
+            } else {
+                // res.status(200).json({
+                //     message: 'Profile accessed',
+                //     data: data
+                // });
+                console.log(data);
+                // Attach the authenticated user to the request object
+                req.user = user;
+                next();
+            }
+        })
     } else {
-        res.status(403);
+        res.status(403).json({ message: 'Invalid token' });
     }
 }
-
-// // middleware function
-// export async function verifyToken(req, res, next) {
-//     // checks if req payload contains token
-//     const token = req.header('auth-token');
-
-//     if (!token) {
-//         return res.status(401).send('Access Denied')
-//     }
-
-//     try {
-//         const verified = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`);
-//         req.user = verified;
-//     } catch (error) {
-//         res.status(400).send('Invalid token');
-//     }
-// }

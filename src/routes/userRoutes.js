@@ -35,18 +35,14 @@ userRouter.get('/users/protected', verifyToken, function (req, res) {
 
     jwt.verify(req.token, `${process.env.JWT_SECRET_KEY}`, function (err, data) {
         if (err) {
-            res.status(403);
+            res.status(403).json({ message: 'Invalid token' });
         } else {
-            res.json({
-                message: 'You do not have authorization to access this information',
+            res.status(200).json({
+                message: 'Profile accessed',
                 data: data
             });
         }
     })
-
-    res.status(200).json({
-        message: 'This is a protected route'
-    });
 })
 
 export { userRouter }

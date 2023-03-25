@@ -80,7 +80,13 @@ const groundSchema = mongoose.Schema(
         inchargeID: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
-        }
+        },
+        reviews: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Review'
+            }
+        ]
     },
     {
         timestamps: true
@@ -96,8 +102,13 @@ const slotSchema = mongoose.Schema(
         },
         rate: {
             type: Number,
-            required: true
+            required: true,
+            min: 5
         },
+        // date: {
+        //     type: Date,
+        //     required: true
+        // },
         startTime: {
             type: String,
             required: true,
@@ -127,6 +138,28 @@ const slotSchema = mongoose.Schema(
             }
         }
 
+    },
+    {
+        timestamps: true
+    }
+);
+
+const reviewSchema = mongoose.Schema(
+    {
+        comment: {
+            type: String,
+            required: true
+        },
+        rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5
+        },
+        userID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
     },
     {
         timestamps: true
@@ -178,7 +211,15 @@ const userSchema = mongoose.Schema(
         lastName: {
             type: String,
             required: true,
-            min: 3
+            min: 2
+        },
+        age: {
+            type: Number,
+            required: true
+        },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female']
         },
         phone: {
             type: String,
@@ -197,9 +238,12 @@ const userSchema = mongoose.Schema(
             required: [true, 'Please enter your password'],
             min: 6
         },
+        profileImage: {
+            type: String
+        },
         role: {
             type: String,
-            enum: ['player', 'captain', 'ground-in-charge', 'admin'],
+            enum: ['Player', 'Captain', 'Ground-in-charge', 'Admin'],
             required: true
         }
     },
@@ -213,6 +257,7 @@ const City = mongoose.model('City', citySchema);
 const Area = mongoose.model('Area', areaSchema);
 const Ground = mongoose.model('Ground', groundSchema);
 const Slot = mongoose.model('Slot', slotSchema);
+const Review = mongoose.model('Review', reviewSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 
-export default { User, City, Area, Ground, Slot, Booking };
+export default { User, City, Area, Ground, Slot, Review, Booking };

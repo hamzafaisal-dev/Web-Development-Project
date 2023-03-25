@@ -1,8 +1,9 @@
-import models from '../models/allModels'
-const { City, Area, Ground, User, Booking } = models;
+import models from '../models/allModels.js'
+const { City, Area, Ground, Review } = models;
+import { verifyToken } from '../helpers/authHelpers.js';
 
-// /cities/:cityID/areas/:areaID/grounds/:groundID/bookings
-export async function createBooking(req, res, next) {
+// /cities/:cityID/areas/:areaID/grounds/:groundID/reviews
+export async function addReview(req, res, next) {
     try {
         const cityID = req.params.cityID;
 
@@ -25,13 +26,11 @@ export async function createBooking(req, res, next) {
         const groundID = req.params.groundID;
 
         // check if ground ID request parameter is valid
-        const ground = await Ground.findById(groundID);
+        const ground = await Ground.findById(groundID).populate('slots');
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });
         }
-
-
     } catch (error) {
 
     }
