@@ -46,7 +46,7 @@ export async function userSignUp(req, res, next) {
             profileImage: req.body.profileImage
         });
 
-        const token = jwt.sign({ newUser }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '300s' });
+        const token = jwt.sign({ newUser }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '1200s' });
 
         res.status(200).json({ newUser, token });
 
@@ -81,7 +81,7 @@ export async function userLogin(req, res, next) {
             return res.status(400).json({ message: 'Incorrect email or password' });
         }
 
-        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '300s' });
+        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '1200s' });
 
         res.status(200).json({ user, token });
 
