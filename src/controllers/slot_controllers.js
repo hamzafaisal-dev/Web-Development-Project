@@ -1,5 +1,5 @@
 import models from '../models/allModels.js'
-const { City, Area, Ground, Slot } = models;
+const { City, Area, Ground } = models;
 
 // /cities/:cityID/areas/:areaID/grounds/:groundID/slots
 export async function addSlot(req, res, next) {
@@ -25,7 +25,7 @@ export async function addSlot(req, res, next) {
         const groundID = req.params.groundID;
 
         // check if ground ID request parameter is valid
-        const ground = await Ground.findById(groundID).populate('slots');
+        const ground = await Ground.findById(groundID);
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });
@@ -38,29 +38,20 @@ export async function addSlot(req, res, next) {
             }
         }
 
-        // check db for slot with given start and end times
-        const slot = await Slot.findOne({ startTime: req.body.startTime, endTime: req.body.endTime });
-
-        // if no such slot exists, create one in db and push it's ID to slots array, else simply push the slot's ID to the array
-        if (!slot) {
-            const newSlot = await Slot.create(req.body);
-            ground.slots.push(newSlot._id);
-            ground.save();
-        } else {
-            ground.slots.push(slot._id);
-            ground.save();
-        }
+        // if no such slot exists, push it to slots array
+        ground.slots.push(req.body);
+        await ground.save();
 
         res.status(201).json({ message: 'Slot created successfully', ground })
 
     } catch (error) {
         console.log(error);
-        if (error.name === 'ValidationError' && error.errors.rate) {
-            return res.status(400).json({ message: 'Enter rate value' })
+        if (error.name === 'ValidationError' && error.message.includes('rate')) {
+            return res.status(400).json({ message: 'Invalid rate value' })
         }
 
-        if (error.name === 'ValidationError' && (error.errors.endTime || error.errors.startTime)) {
-            return res.status(400).json({ message: 'Invalid slot' })
+        if (error.name === 'ValidationError' && (error.message.includes('startTime') || error.message.includes('endTime'))) {
+            return res.status(400).json({ message: 'Invalid slot' });
         }
 
         res.status(500).json({ message: "Something went wrong" });
@@ -130,7 +121,7 @@ export async function updateSlot(req, res, next) {
         const groundID = req.params.groundID;
 
         // check if ground ID request parameter is valid
-        const ground = await Ground.findById(groundID).populate('slots');
+        const ground = await Ground.findById(groundID);
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });
@@ -143,16 +134,48 @@ export async function updateSlot(req, res, next) {
             }
         }
 
-        // update slot
-        const slot = await Slot.findByIdAndUpdate(req.params.slotID, req.body, { new: true, runValidators: true });
+        // find index of slot to be deleted
+        const updatedIndex = ground.slots.findIndex(obj => obj._id == req.params.slotID);
 
-        if (!slot) {
+        if (updatedIndex === -1) {
             return res.status(404).json({ message: "Slot not found" });
+        } else {
+            const { status, startTime, endTime, rate } = req.body;
+
+            if (status !== undefined) {
+                ground.slots[updatedIndex].status = req.body.status;
+                await ground.save();
+            }
+
+            if (startTime !== undefined || endTime !== undefined) {
+                if (startTime !== undefined) {
+                    ground.slots[updatedIndex].startTime = req.body.startTime;
+                }
+
+                if (endTime !== undefined) {
+                    ground.slots[updatedIndex].endTime = req.body.endTime;
+                }
+
+                await ground.save();
+            }
+
+            if (rate !== undefined) {
+                ground.slots[updatedIndex].rate = req.body.rate;
+                await ground.save();
+            }
         }
 
-        res.status(200).json({ message: 'Slot details updated successfully', slot });
+        res.status(200).json({ message: 'Slot details updated successfully', ground });
     } catch (error) {
         console.log(error);
+        if (error.name === 'ValidationError' && error.message.includes('rate')) {
+            return res.status(400).json({ message: 'Invalid rate value' })
+        }
+
+        if (error.name === 'ValidationError' && (error.message.includes('startTime') || error.message.includes('endTime'))) {
+            return res.status(400).json({ message: 'Invalid slot' });
+        }
+
         res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -188,15 +211,16 @@ export async function deleteSlot(req, res, next) {
         }
 
         // find index of slot to be deleted
-        const deletedIndex = ground.slots.indexOf(req.params.slotID);
+        const deletedIndex = ground.slots.findIndex(obj => obj._id == req.params.slotID);
 
-        if (deletedIndex > -1) { // only splice array when item found 
+        if (deletedIndex !== -1) {
             ground.slots.splice(deletedIndex); // remove slot from ground
             await ground.save();
             return res.status(200).json({ message: 'Slot deleted successully', ground });
         } else {
             return res.status(404).json({ message: 'Slot not found in this ground' });
         }
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Something went wrong" });

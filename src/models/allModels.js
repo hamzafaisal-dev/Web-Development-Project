@@ -73,8 +73,48 @@ const groundSchema = mongoose.Schema(
         },
         slots: [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Slot'
+                status: {
+                    type: String,
+                    enum: ['available', 'unavailable', 'selected', 'pending'],
+                    required: true
+                },
+                rate: {
+                    type: Number,
+                    required: true,
+                    min: 5
+                },
+                // date: {
+                //     type: Date,
+                //     required: true
+                // },
+                startTime: {
+                    type: String,
+                    required: true,
+                    match: /^([01]\d|2[0-3]):[0-5]\d$/, // regular expression for hh:mm format
+                    validate: {
+                        validator: function (v) {
+                            const endTime = this.endTime;
+                            if (endTime && v >= endTime) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    }
+                },
+                endTime: {
+                    type: String,
+                    required: true,
+                    match: /^([01]\d|2[0-3]):[0-5]\d$/, // regular expression for hh:mm format
+                    validate: {
+                        validator: function (v) {
+                            const startTime = this.startTime;
+                            if (startTime && v <= startTime) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    }
+                }
             }
         ],
         inchargeID: {
@@ -87,57 +127,6 @@ const groundSchema = mongoose.Schema(
                 ref: 'Review'
             }
         ]
-    },
-    {
-        timestamps: true
-    }
-);
-
-const slotSchema = mongoose.Schema(
-    {
-        status: {
-            type: String,
-            enum: ['Available', 'Unavailable', 'Selected', 'Pending'],
-            required: true
-        },
-        rate: {
-            type: Number,
-            required: true,
-            min: 5
-        },
-        // date: {
-        //     type: Date,
-        //     required: true
-        // },
-        startTime: {
-            type: String,
-            required: true,
-            match: /^([01]\d|2[0-3]):[0-5]\d$/, // regular expression for hh:mm format
-            validate: {
-                validator: function (v) {
-                    const endTime = this.endTime;
-                    if (endTime && v >= endTime) {
-                        return false;
-                    }
-                    return true;
-                }
-            }
-        },
-        endTime: {
-            type: String,
-            required: true,
-            match: /^([01]\d|2[0-3]):[0-5]\d$/, // regular expression for hh:mm format
-            validate: {
-                validator: function (v) {
-                    const startTime = this.startTime;
-                    if (startTime && v <= startTime) {
-                        return false;
-                    }
-                    return true;
-                }
-            }
-        }
-
     },
     {
         timestamps: true
@@ -170,7 +159,7 @@ const bookingSchema = mongoose.Schema(
     {
         bookingStatus: {
             type: String,
-            enum: ['Pending', 'Confirmed', 'Denied'],
+            enum: ['pending', 'confirmed', 'denied'],
             required: true
         },
         bookingDate: {
@@ -192,6 +181,35 @@ const bookingSchema = mongoose.Schema(
             }
         ],
         totalAmount: {
+            type: Number,
+            required: true
+        }
+    },
+    {
+        timestamps: true
+    }
+);
+
+const paymentSchema = mongoose.Schema(
+    {
+        paymentStatus: {
+            type: String,
+            enum: ['pending', 'confirmed'],
+            required: true,
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        ground: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Ground'
+        },
+        booking: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Booking'
+        },
+        paymentAmount: {
             type: Number,
             required: true
         }
@@ -256,8 +274,7 @@ const User = mongoose.model('User', userSchema);
 const City = mongoose.model('City', citySchema);
 const Area = mongoose.model('Area', areaSchema);
 const Ground = mongoose.model('Ground', groundSchema);
-const Slot = mongoose.model('Slot', slotSchema);
 const Review = mongoose.model('Review', reviewSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 
-export default { User, City, Area, Ground, Slot, Review, Booking };
+export default { User, City, Area, Ground, Review, Booking };

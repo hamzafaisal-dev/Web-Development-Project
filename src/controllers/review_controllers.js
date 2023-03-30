@@ -134,7 +134,7 @@ export async function updateReview(req, res, next) {
         const groundID = req.params.groundID;
 
         // check if ground ID request parameter is valid
-        const ground = await Ground.findById(groundID).populate('slots');
+        const ground = await Ground.findById(groundID);
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });

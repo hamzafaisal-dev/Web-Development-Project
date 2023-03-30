@@ -11,6 +11,7 @@ import { groundRouter } from './src/routes/groundRoutes.js'
 import { slotRouter } from './src/routes/slotRoutes.js'
 import { userRouter } from './src/routes/userRoutes.js'
 import { reviewRouter } from './src/routes/reviewRoutes.js'
+import { bookingRouter } from './src/routes/bookingRoutes.js'
 
 // sets up the Express application to handle incoming data in JSON format
 app.use(express.json());
@@ -32,6 +33,9 @@ app.use('/', slotRouter);
 
 // reviews router
 app.use('/', reviewRouter);
+
+// bookings router
+app.use('/', bookingRouter);
 
 // 5.Bookings CRUD operations //
 
