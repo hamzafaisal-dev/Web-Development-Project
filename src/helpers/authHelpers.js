@@ -7,33 +7,58 @@ export async function validateEmail(email) {
     return emailRegex.test(email);
 }
 
-// middleware function
-export async function verifyToken(req, res, next) {
-    console.log('verifyToken middleware called');
+export function generateAccessToken(payload) {
+    try {
+        const accessToken = jwt.sign({ sub: payload }, `${process.env.ACCESS_SECRET_KEY}`, { expiresIn: '1200s' });
+        return accessToken;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export function generateRefreshToken(userID) {
+    try {
+        const refreshToken = jwt.sign({ sub: userID }, `${process.env.REFRESH_SECRET_KEY}`, { expiresIn: '1d' });
+        return refreshToken;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function verifyAccessToken(req, res, next) {
+    console.log('verifyAccessToken middleware called');
     // checks if authorization header exists
     const bearerHeader = req.headers['authorization'];
 
     if (typeof bearerHeader !== 'undefined') {
         const bearer = bearerHeader.split(" ");
         const bearerToken = bearer[1];
-        req.token = bearerToken;
+        const token = bearerToken;
 
-        jwt.verify(req.token, `${process.env.JWT_SECRET_KEY}`, function (err, data) {
+        jwt.verify(token, `${process.env.ACCESS_SECRET_KEY}`, function (err, data) {
             if (err) {
                 return res.status(403).json({ message: 'Invalid token' });
             } else {
-                // res.status(200).json({
-                //     message: 'Profile accessed',
-                //     data: data
-                // });
-                console.log(data);
-                // Attach the authenticated user data to the request object
+                // attach the authenticated user data to the request object
                 req.user = data;
-                //console.log(`Req.user is ${req.user.user._id}`)
                 next();
             }
         })
     } else {
-        res.status(403).json({ message: 'Invalid token' });
+        res.status(403).json({ message: 'Invalid header' });
     }
+}
+
+export async function verifyRefreshToken(refreshToken) {
+    console.log('verifyRefreshToken middleware called');
+
+    jwt.verify(refreshToken, `${process.env.REFRESH_SECRET_KEY}`, function (err, data) {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        } else {
+            // Attach the authenticated user data to the request object
+            req.user = data;
+            next();
+        }
+    })
 }

@@ -1,7 +1,7 @@
 import models from '../models/allModels.js'
 const { City, Area, Ground } = models;
 
-// /cities/:cityID/areas/:areaID/grounds
+// /cities/:cityID/grounds
 export async function addGround(req, res, next) {
     try {
         const cityID = req.params.cityID;
@@ -13,34 +13,36 @@ export async function addGround(req, res, next) {
             return res.status(404).json({ message: "City not found" });
         }
 
-        const areaID = req.params.areaID;
+        // const areaID = req.params.areaID;
 
-        // check if area ID request parameter is valid
-        const area = await Area.findById(areaID);
+        // // check if area ID request parameter is valid
+        // const area = await Area.findById(areaID);
 
-        if (!area) {
-            return res.status(404).json({ message: "Area not found" });
-        }
+        // if (!area) {
+        //     return res.status(404).json({ message: "Area not found" });
+        // }
 
         let ground = await Ground.findOne({ groundName: req.body.groundName });
 
         // if ground does not exist in database, create it
         if (!ground) {
             ground = await Ground.create(req.body)
+            ground.save();
         }
 
-        // if area already contains ground, return error message
-        if (area.grounds.includes(ground._id)) {
-            return res.status(400).json({ message: "Ground already exists in this area" });
+        // if city already contains ground, return error message
+        if (city.grounds.includes(ground._id)) {
+            return res.status(400).json({ message: "Ground already exists in this city" });
         }
 
-        // else push ground ID to area and save
-        area.grounds.push(ground._id);
-        area.save();
+        // else push ground ID to city and save
+        city.grounds.push(ground._id);
+        city.save();
 
         res.status(201).json({ message: 'Ground created successfully', ground })
 
     } catch (error) {
+        console.log(error);
         if (error.name === 'ValidationError' && error.errors.groundName) {
             return res.status(400).json({ message: 'Enter ground name' })
         }
@@ -53,32 +55,16 @@ export async function addGround(req, res, next) {
             return res.status(400).json({ message: 'This ground already exists in the system' })
         }
 
-        res.status(500).json({ message: "Something went wrong" });
+        res.status(500).json({ error });
     }
 }
 
-// /cities/:cityID/areas/:areaID/grounds
-export async function viewGrounds(req, res, next) {
+export async function getAllGrounds(req, res, next) {
     try {
-        const cityID = req.params.cityID;
 
-        // check if city ID request parameter is valid
-        const city = await City.findById(cityID);
+        const grounds = await Ground.find({});
 
-        if (!city) {
-            return res.status(404).json({ message: "City not found" });
-        }
-
-        const areaID = req.params.areaID;
-
-        // check if area ID request parameter is valid
-        const area = await Area.findById(areaID).populate('grounds');
-
-        if (!area) {
-            return res.status(404).json({ message: "Area not found" });
-        }
-
-        res.status(200).json(area.grounds)
+        res.status(200).json(grounds)
 
     } catch (error) {
         console.log(error);
@@ -86,7 +72,49 @@ export async function viewGrounds(req, res, next) {
     }
 }
 
-// /cities/:cityID/areas/:areaID/grounds
+// /cities/:cityID/grounds
+export async function viewGrounds(req, res, next) {
+    try {
+        const cityID = req.params.cityID;
+
+        // check if city ID request parameter is valid
+        const city = await City.findById(cityID).populate('grounds');
+
+        if (!city) {
+            return res.status(404).json({ message: "City not found" });
+        }
+
+        let grounds = [];
+
+        for (let ground of city.grounds) {
+            // if no area given but type given and type matches any type in array, push it
+            if (req.body.area == undefined && req.body.type != undefined && ground.type == req.body.type) {
+                grounds.push(ground);
+            }
+
+            // if no type given but area given and area matches any area in array, push it
+            else if (req.body.area != undefined && req.body.type == undefined && ground.area == req.body.area) {
+                grounds.push(ground);
+            }
+
+            // if both type and area given, and both type and area match any ground, push it
+            else if (req.body.area != undefined && req.body.type != undefined && (ground.area == req.body.area && ground.type == req.body.type)) {
+                grounds.push(ground);
+            }
+
+            else if (req.body.area == undefined && req.body.type == undefined) {
+                grounds = city.grounds;
+            }
+        }
+
+        res.status(200).json(grounds)
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
 // view particular ground by name (regex not working properly)
 export async function viewGround(req, res, next) {
     try {
@@ -99,20 +127,7 @@ export async function viewGround(req, res, next) {
             return res.status(404).json({ message: "City not found" });
         }
 
-        const areaID = req.params.areaID;
-
-        // check if area ID request parameter is valid
-        const area = await Area.findById(areaID);
-
-        if (!area) {
-            return res.status(404).json({ message: "Area not found" });
-        }
-
-        // const ground = await Area.find({ groundName: req.body.groundName });
-        const regex = /Madhu/;
-        // const regex = new RegExp(groundName, "i"); // "i" flag makes the search case-insensitive
-
-        const ground = await Ground.find({ groundName: { $regex: regex } });
+        const ground = await Ground.findById(req.params.groundID);
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });
@@ -132,19 +147,10 @@ export async function updateGround(req, res, next) {
         const cityID = req.params.cityID;
 
         // check if city ID request parameter is valid
-        const city = await City.findById(cityID);
+        const city = await City.findById(cityID).populate('grounds');
 
         if (!city) {
             return res.status(404).json({ message: "City not found" });
-        }
-
-        const areaID = req.params.areaID;
-
-        // check if area ID request parameter is valid
-        const area = await Area.findById(areaID);
-
-        if (!area) {
-            return res.status(404).json({ message: "Area not found" });
         }
 
         const ground = await Ground.findByIdAndUpdate(req.params.groundID, req.body, { new: true });
@@ -199,4 +205,28 @@ export async function deleteGround(req, res, next) {
     }
 }
 
+// /cities/:cityID/grounds
+export async function filterGrounds(req, res, next) {
+    try {
+
+        const cityID = req.params.cityID;
+
+        // check if city ID request parameter is valid
+        const city = await City.findById(cityID).populate('grounds');
+
+        if (!city) {
+            return res.status(404).json({ message: "City not found" });
+        }
+
+        // const grounds = await Ground.find(req.body);
+
+        // return res.status(200).json(grounds)
+
+        return console.log(city.grounds);
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
 

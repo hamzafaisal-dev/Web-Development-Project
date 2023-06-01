@@ -1,8 +1,7 @@
 import express from 'express'
-const app = express();
-
+import cors from 'cors'
+import bodyParser from 'body-parser';
 import dotenv from 'dotenv'
-dotenv.config() // load environment variables from .env file
 
 import mongoose from 'mongoose';
 import { cityRouter } from './src/routes/cityRoutes.js'
@@ -12,9 +11,15 @@ import { slotRouter } from './src/routes/slotRoutes.js'
 import { userRouter } from './src/routes/userRoutes.js'
 import { reviewRouter } from './src/routes/reviewRoutes.js'
 import { bookingRouter } from './src/routes/bookingRoutes.js'
+import { paymentRouter } from './src/routes/paymentRoutes.js'
 
+const app = express();
 // sets up the Express application to handle incoming data in JSON format
 app.use(express.json());
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+dotenv.config() // load environment variables from .env file
 
 // users router
 app.use('/', userRouter);
@@ -37,17 +42,15 @@ app.use('/', reviewRouter);
 // bookings router
 app.use('/', bookingRouter);
 
-// 5.Bookings CRUD operations //
-
-// CREATE new booking for a particular ground
-// app.post('/users/:userID/bookings', addSlot);
+// bookings router
+app.use('/', paymentRouter);
 
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.DB_CONNECTION_STRING)
     .then(() => {
         console.log('Connected to MongoDB');
 
-        const port = process.env.PORT || 3000;
+        const port = process.env.PORT || 3001;
 
         app.listen(port, () => {
             console.log(`Node API app is running on port ${port}`);

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
 import models from '../models/allModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
 const { User } = models;
-import { validateEmail } from '../helpers/authHelpers.js';
+import { validateEmail, generateAccessToken, generateRefreshToken } from '../helpers/authHelpers.js';
 
 export async function home(req, res, next) {
     res.send('Ground Booking App: Home');
@@ -10,7 +10,6 @@ export async function home(req, res, next) {
 
 export async function userSignUp(req, res, next) {
     try {
-
         // check for duplicate email, return error message if true
         const userAlreadyExists = await User.findOne({ email: req.body.email });
 
@@ -46,13 +45,14 @@ export async function userSignUp(req, res, next) {
             profileImage: req.body.profileImage
         });
 
-        const token = jwt.sign({ newUser }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '1200s' });
+        console.log(newUser.email);
+        const accessToken = generateAccessToken(newUser.email);
+        const refreshToken = generateRefreshToken(newUser._id);
 
-        res.status(200).json({ newUser, token });
+        res.status(201).json({ accessToken, refreshToken });
 
     } catch (error) {
         console.log(error);
-
         if (error instanceof Error && error.code == "11000") {
             return res.status(400).json({ message: 'This phone number is already registered' })
         }
@@ -81,14 +81,24 @@ export async function userLogin(req, res, next) {
             return res.status(400).json({ message: 'Incorrect email or password' });
         }
 
-        const token = jwt.sign({ user }, `${process.env.JWT_SECRET_KEY}`, { expiresIn: '1200s' });
+        const accessToken = generateAccessToken({ email: user.email });
+        const refreshToken = generateRefreshToken(user._id);
 
-        res.status(200).json({ user, token });
+        res.status(200).json({ user, accessToken, refreshToken });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: 'Something went wrong' })
     }
 }
+
+// export async function getUser(req, res, next) {
+//     try {
+//         const user = await User.fi
+//     } catch (error) {
+
+//     }
+// }
 
 export async function getAllUsers(req, res, next) {
     try {

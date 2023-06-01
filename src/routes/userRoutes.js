@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config() // load environment variables from .env file
 
 import { home, userSignUp, getAllUsers, userLogin, updateUser, deleteUser, deleteAll } from "../controllers/user_controllers.js"
-import { verifyToken } from '../helpers/authHelpers.js'
+import { verifyAccessToken } from '../helpers/authHelpers.js'
 
 // creates endpoint to handle GET requests to the '/' URL path
 userRouter.get('/', home);
@@ -18,8 +18,8 @@ userRouter.post('/users/signup', userSignUp)
 // READ / GET all users
 userRouter.get('/users', getAllUsers)
 
-// READ / GET individual user
-userRouter.get('/users/login', userLogin)
+// GET individual user. POST because in GET when u send data, it gets appended to URL as query parameters which is not safe way to send insensitive data
+userRouter.post('/users/login', userLogin)
 
 // UPDATE a user
 userRouter.put('/users/:id', updateUser)
@@ -31,9 +31,9 @@ userRouter.delete('/users/:id', deleteUser)
 userRouter.delete('/users', deleteAll)
 
 // protected route
-userRouter.get('/users/protected', verifyToken, function (req, res) {
+userRouter.get('/users/protected', verifyAccessToken, function (req, res) {
 
-    jwt.verify(req.token, `${process.env.JWT_SECRET_KEY}`, function (err, data) {
+    jwt.verify(req.token, `${process.env.ACCESS_SECRET_KEY}`, function (err, data) {
         if (err) {
             res.status(403).json({ message: 'Invalid token' });
         } else {

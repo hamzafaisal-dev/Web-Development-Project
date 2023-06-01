@@ -31,11 +31,16 @@ export async function addSlot(req, res, next) {
             return res.status(404).json({ message: "Ground not found" });
         }
 
-        // check if slot with given start and end times already exists in ground's "slots" array, return error if true
         for (let slot of ground.slots) {
+            // check if slot with given start and end times already exists in ground's "slots" array
             if (slot.startTime === req.body.startTime && slot.endTime === req.body.endTime) {
                 return res.status(400).json({ message: 'This slot already exists in this ground' })
             }
+
+            // // check if startTime or endTime of slot lies b/w an already existing slot 
+            // else if ((req.body.startTime < slot.startTime && req.body.startTime > slot.endTime) || (req.body.endTime > slot.startTime && req.body.endTime < slot.endTime)) {
+            //     return res.status(400).json({ message: 'This slot clashes with other slots' })
+            // }
         }
 
         // if no such slot exists, push it to slots array
@@ -82,7 +87,7 @@ export async function getSlots(req, res, next) {
         const groundID = req.params.groundID;
 
         // check if ground ID request parameter is valid
-        const ground = await Ground.findById(groundID).populate('slots');
+        const ground = await Ground.findById(groundID);
 
         if (!ground) {
             return res.status(404).json({ message: "Ground not found" });
@@ -134,7 +139,7 @@ export async function updateSlot(req, res, next) {
             }
         }
 
-        // find index of slot to be deleted
+        // find index of slot to be deleted. arrow func takes obj as parameter and iterates over each object in array until id found
         const updatedIndex = ground.slots.findIndex(obj => obj._id == req.params.slotID);
 
         if (updatedIndex === -1) {
@@ -214,7 +219,7 @@ export async function deleteSlot(req, res, next) {
         const deletedIndex = ground.slots.findIndex(obj => obj._id == req.params.slotID);
 
         if (deletedIndex !== -1) {
-            ground.slots.splice(deletedIndex); // remove slot from ground
+            ground.slots.splice(deletedIndex, 1); // remove slot from ground
             await ground.save();
             return res.status(200).json({ message: 'Slot deleted successully', ground });
         } else {

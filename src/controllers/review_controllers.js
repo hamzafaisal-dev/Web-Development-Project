@@ -1,6 +1,6 @@
 import models from '../models/allModels.js'
 const { City, Area, Ground, Review } = models;
-import { verifyToken } from '../helpers/authHelpers.js';
+import { verifyAccessToken } from '../helpers/authHelpers.js';
 import mongoose from 'mongoose';
 
 // /cities/:cityID/areas/:areaID/grounds/:groundID/reviews
