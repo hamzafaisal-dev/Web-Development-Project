@@ -1,4 +1,4 @@
-import models from "../models/allModels";
+import models from "../models/allModels.js";
 const { City, Booking, Payment } = models;
 
 export async function createPayment(req, res, next) {
@@ -14,41 +14,57 @@ export async function createPayment(req, res, next) {
         }
 
         // check expiration date validity
-        expirationMonth = expirationDate.substring(0, 2);
-        expirationYear = expirationDate.substring(3, 5);
+        const expirationMonth = parseInt(expirationDate.substring(0, 2));
+        const expirationYear = parseInt(expirationDate.substring(3, 5));
 
-        if (expirationMonth.length > 2 || expirationMonth.length < 2 || expirationMonth < 0 || expirationMonth > 12) {
+        if (!Number.isInteger(expirationMonth) || expirationMonth.length > 2 || expirationMonth.length < 2 || expirationMonth < 0 || expirationMonth > 12) {
             return res.status(500).json({ message: 'Invalid expiration date' });
         }
 
-        const currentYear = new Date().getFullYear().toString().substring(2, 4); // gets last 2 digits fo curr year
+        const currentYear = new Date().getFullYear().toString().substring(2, 4); // gets last 2 digits of current year
 
         if (expirationYear.length > 2 || expirationYear.length < 2 || expirationYear < currentYear) {
             return res.status(500).json({ message: 'Invalid expiration date' });
         }
 
         const newPayment = await Payment.create({
-            "paymentStatus": "pending",
+            "paymentStatus": req.body.paymentStatus,
             // "user":,
             "ground": req.body.groundID,
             "creditCardNumber": req.body.creditCardNumber,
             "cvv": req.body.cvv,
             "expirationDate": req.body.expirationDate,
-            "paymentAmount": req.body.subtotal
-
+            "paymentAmount": req.body.paymentAmount
         });
 
-        res.status(200).json({ newPayment });
+        res.status(200).json(newPayment);
 
     } catch (error) {
-
+        if (error.errors.creditCardNumber) {
+            return res.status(500).json({ message: 'Invalid credit card number' });
+        } else if (error.errors.cvv) {
+            return res.status(500).json({ message: 'Invalid cvv' });
+        } else if (error.errors.expirationDate) {
+            return res.status(500).json({ message: 'Invalid expiration date' });
+        } else {
+            console.log(error);
+            return res.status(500).json({ message: 'Something went wrong' });
+        }
     }
 }
 
 export async function updatePayment(req, res, next) {
     try {
+        const paymentID = req.body._id;
 
+        const updatedPayment = await Payment.findByIdAndUpdate(paymentID, req.body, { new: true });
+
+        if (!updatedPayment) {
+            return res.status(404).json({ message: "Payment not found" });
+        }
+
+        res.status(200).json({ updatePayment });
     } catch (error) {
-
+        res.status(500).json({ error });
     }
 }

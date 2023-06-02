@@ -263,19 +263,17 @@ const paymentSchema = mongoose.Schema(
             ref: 'Booking'
         },
         creditCardNumber: {
-            type: "Number",
+            type: String,
             required: true,
-            min: 16,
-            max: 16
+            match: /^\d{16}$/ // Validates 16-digit numeric string
         },
         cvv: {
-            type: "Number",
+            type: String,
             required: true,
-            min: 3,
-            max: 3
+            match: /^\d{3}$/ // Validates 3-digit numeric string
         },
         expirationDate: {
-            type: "String",
+            type: String,
             required: true
         },
         paymentAmount: {
@@ -333,7 +331,7 @@ const userSchema = mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ['player', 'captain', 'ground-in-charge', 'admin'],
+            enum: ['player', 'ground-in-charge', 'admin'],
             required: true
         }
     },
@@ -350,4 +348,4 @@ const Review = mongoose.model('Review', reviewSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 const Payment = mongoose.model('Payment', paymentSchema);
 
-export default { User, City, Area, Ground, Review, Booking };
+export default { User, City, Area, Ground, Review, Booking, Payment };

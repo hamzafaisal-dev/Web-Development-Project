@@ -9,14 +9,14 @@ export async function createBooking(req, res, next) {
         // will retrieve user ID from authenticated user session
         // const userID = new mongoose.Types.ObjectId(req.user.user._id);
 
-        const cityID = req.params.cityID;
+        // const cityID = req.params.cityID;
 
-        // check if city ID request parameter is valid
-        const city = await City.findById(cityID);
+        // // check if city ID request parameter is valid
+        // const city = await City.findById(cityID);
 
-        if (!city) {
-            return res.status(404).json({ message: "City not found" });
-        }
+        // if (!city) {
+        //     return res.status(404).json({ message: "City not found" });
+        // }
 
         const groundID = req.params.groundID;
 
