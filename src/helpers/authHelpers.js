@@ -9,7 +9,7 @@ export async function validateEmail(email) {
 
 export function generateAccessToken(payload) {
     try {
-        const accessToken = jwt.sign({ sub: payload }, `${process.env.ACCESS_SECRET_KEY}`, { expiresIn: '1200s' });
+        const accessToken = jwt.sign(payload, `${process.env.ACCESS_SECRET_KEY}`, { expiresIn: '1200s' });
         return accessToken;
     } catch (error) {
         console.log(error);

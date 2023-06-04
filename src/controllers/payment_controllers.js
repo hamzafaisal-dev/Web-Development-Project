@@ -68,3 +68,14 @@ export async function updatePayment(req, res, next) {
         res.status(500).json({ error });
     }
 }
+
+export async function deleteAllPayments(req, res, next) {
+    try {
+        const allPayments = await Payment.deleteMany({});
+
+        return res.status(200).json({ allPayments });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error });
+    }
+}

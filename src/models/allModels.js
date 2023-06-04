@@ -184,7 +184,7 @@ const bookingSchema = mongoose.Schema(
         },
         ground: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Ground'
+            ref: 'Ground',
         },
         slots: [
             {
@@ -333,7 +333,14 @@ const userSchema = mongoose.Schema(
             type: String,
             enum: ['player', 'ground-in-charge', 'admin'],
             required: true
-        }
+        },
+        bio: {
+            type: String
+        },
+        bookings: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Booking'
+        }]
     },
     {
         timestamps: true

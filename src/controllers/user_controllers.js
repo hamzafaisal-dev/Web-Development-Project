@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose';
 import models from '../models/allModels.js'; // import user model which defines the structure of the users to be stored in the MongoDB database
 const { User } = models;
 import { validateEmail, generateAccessToken, generateRefreshToken } from '../helpers/authHelpers.js';
@@ -81,10 +81,13 @@ export async function userLogin(req, res, next) {
             return res.status(400).json({ message: 'Incorrect email or password' });
         }
 
-        const accessToken = generateAccessToken({ email: user.email });
+        const userFirstName = user.firstName;
+        const userLastName = user.lastName;
+        const userRole = user.role;
+        const accessToken = generateAccessToken({ id: user._id });
         const refreshToken = generateRefreshToken(user._id);
 
-        res.status(200).json({ user, accessToken, refreshToken });
+        res.status(200).json({ userFirstName, userLastName, userRole, accessToken, refreshToken });
 
     } catch (error) {
         console.log(error);
@@ -92,13 +95,25 @@ export async function userLogin(req, res, next) {
     }
 }
 
-// export async function getUser(req, res, next) {
-//     try {
-//         const user = await User.fi
-//     } catch (error) {
+export async function getUser(req, res, next) {
+    try {
+        // will retrieve user ID from authenticated user session
+        const userID = new mongoose.Types.ObjectId(req.user.id);
 
-//     }
-// }
+        const user = await User.findById(userID);
+        console.log(user);
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ user });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "error" });
+    }
+}
 
 export async function getAllUsers(req, res, next) {
     try {

@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config() // load environment variables from .env file
 
-import { home, userSignUp, getAllUsers, userLogin, updateUser, deleteUser, deleteAll } from "../controllers/user_controllers.js"
+import { home, userSignUp, getUser, getAllUsers, userLogin, updateUser, deleteUser, deleteAll } from "../controllers/user_controllers.js"
 import { verifyAccessToken } from '../helpers/authHelpers.js'
 
 // creates endpoint to handle GET requests to the '/' URL path
@@ -14,6 +14,9 @@ userRouter.get('/', home);
 
 // CREATE new user
 userRouter.post('/users/signup', userSignUp)
+
+// GET indiv user
+userRouter.get('/user', verifyAccessToken, getUser)
 
 // READ / GET all users
 userRouter.get('/users', getAllUsers)
